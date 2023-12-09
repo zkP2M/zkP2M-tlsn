@@ -1,5 +1,6 @@
 import logging
 import json
+import re
 import os
 import os.path
 import subprocess
@@ -48,12 +49,17 @@ class MainHandler(tornado.web.RequestHandler):
             print("finished ", results)
             verifyfut = self.verify()
             valid = yield verifyfut
-            print("validator results:  ", valid)
-            print("approving usdc withdrawal")
-            #tmp values until sourabh and sachin get in gear
-            user_data = {'intent_hash': 'intentHash'}
-            api_data =  {'amount': 100,  'created_at': 1702052754, 'email': 'success@razorpay'}
-            utils.contract_utils.call_onramp(user_data["intent_hash"], api_data["created_at"], api_data["amount"], api_data["email"])
+            match_api_json = re.search('{\"id".*}}', valid)
+            if match_api_json:            
+                api_json = match_api_json.group(0)
+                print("matched: ", api_json)
+                api_data = json.loads(api_json)
+                print("approving usdc withdrawal")
+                #tmp values until sourabh and sachin get in gear
+                #user_data = {'intent_hash': 'intentHash'}
+                #api_data =  {'amount': 100,  'created_at': 1702052754, 'email': 'success@razorpay'}
+                print("using %s as the intent hash",api_data["notes"]["id"])
+                utils.contract_utils.call_onramp(api_data["notes"]["id"], api_data["created_at"], api_data["amount"], api_data["email"])
         except subprocess.CalledProcessError as e:
             logging.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
     @tornado.gen.coroutine
