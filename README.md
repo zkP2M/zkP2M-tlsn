@@ -1,7 +1,20 @@
 # Notarize Merchant RazorPay Payments
 
+## Notarize
 
-``log
+```sh
+RUST_LOG=debug,yamux=info cargo run --release --example razorpay_payment_proover
+```
+
+# Verifier
+
+
+```
+cargo run --release --example razorpay_payment_verifier
+```
+
+
+```log
 curl -u rzp_test_c4bTc9bMwdE8xe:Eh6iHh3OyK7MTWFAljNXgHPS \
 -X GET https://api.razorpay.com/v1/payments/pay_N9usRAfmAt1BJH
 
