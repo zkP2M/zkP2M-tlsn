@@ -2,3 +2,4 @@
 Cargo.lock
 *.json
 venv/
+.env
