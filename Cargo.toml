@@ -35,8 +35,8 @@ tracing = "0.1.40"
 rustls-pemfile = { version = "1.0.2" }
 
 [[example]]
-name = "razorpay_payment_proover"
-path = "src/examples/razorpay_payment_proover.rs"
+name = "razorpay_payment_prover"
+path = "src/examples/razorpay_payment_prover.rs"
 
 [[example]]
 name = "razorpay_payment_verifier"

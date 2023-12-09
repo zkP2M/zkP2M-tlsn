@@ -45,7 +45,7 @@ class MainHandler(tornado.web.RequestHandler):
         print("validator results:  ", valid)
     @tornado.gen.coroutine
     def prove(self):
-        bashCommand = ['cargo','run','--release','--example','razorpay_payment_proover']
+        bashCommand = ['cargo','run','--release','--example','razorpay_payment_prover']
         proc = tornado.process.Subprocess(bashCommand, stdout=tornado.process.subprocess.PIPE, stderr=tornado.process.subprocess.STDOUT, universal_newlines=True, cwd='/home/ubuntu/zkp2m-tlsn')
 
         yield proc.wait_for_exit() # `wait_for_exit` returns a future 
