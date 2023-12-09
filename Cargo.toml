@@ -1,0 +1,43 @@
+[package]
+name = "zkp2m-tlsn"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+tlsn-core = { git = "https://github.com/tlsnotary/tlsn", rev = "6152883" }
+tlsn-verifier = { git = "https://github.com/tlsnotary/tlsn", rev = "6152883" }
+p256 = { version = "0.13", features = ["ecdsa"] }
+tokio = { version = "1.33.0", features = [
+    "rt",
+    "rt-multi-thread",
+    "macros",
+    "net",
+    "io-std",
+    "fs",
+] }
+tokio-util = { version = "0.7.9", features = ["compat"] }
+tracing-subscriber = "0.3.17"
+tlsn-prover = { git = "https://github.com/tlsnotary/tlsn", rev = "6152883" }
+hyper = { version = "0.14", features = ["client", "http1"] }
+serde_json = "1.0.107"
+futures = "0.3.28"
+base64 = "0.21.5"
+elliptic-curve = { version = "0.13.5", features = ["pkcs8"] }
+chrono = "0.4.31"
+serde = { version = "1.0.147", features = ["derive"] }
+dotenv = "0.15.0"
+rustls = { version = "0.21" }
+tokio-rustls = { version = "0.24.1" }
+tracing = "0.1.40"
+rustls-pemfile = { version = "1.0.2" }
+
+[[example]]
+name = "razorpay_payment_proover"
+path = "src/examples/razorpay_payment_proover.rs"
+
+[[example]]
+name = "razorpay_payment_verifier"
+path = "src/examples/razorpay_payment_verifier.rs"
