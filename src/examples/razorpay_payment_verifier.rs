@@ -67,6 +67,6 @@ fn main() {
 /// Returns a Notary pubkey trusted by this Verifier
 fn notary_pubkey() -> p256::PublicKey {
     let pem_file =
-        str::from_utf8(include_bytes!("../../test-certs.pub")).unwrap();
+        str::from_utf8(include_bytes!("../../test-certs/notary.pub")).unwrap();
     p256::PublicKey::from_public_key_pem(pem_file).unwrap()
 }

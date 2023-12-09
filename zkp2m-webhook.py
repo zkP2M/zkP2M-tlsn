@@ -1,6 +1,7 @@
 import logging
 import json
 import os.path
+import subprocess
 import tornado.escape
 import tornado.ioloop
 import tornado.process
@@ -13,14 +14,14 @@ import tornado.gen
 from tornado.queues import Queue
 from tornado.options import define, options
 
-define("port", default=8888, help="run on the given port", type=int)
+define("port", default=3030, help="run on the given port", type=int)
 q = Queue()
 
 
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r"/webhook", MainHandler),
+            (r"/", MainHandler),
             (r"/ws", SocketHandler),
         ]
         settings = dict(
@@ -36,17 +37,27 @@ class MainHandler(tornado.web.RequestHandler):
         logging.info(json.loads(self.request.body))
         self.set_status(200)
         self.finish()
-        logging.info(self.prove())
         futures = self.prove()
-        results = yield futures 
-        print("finished ", results)
-        verifyfut = self.verify()
-        valid = yield verifyfut
-        print("validator results:  ", valid)
+        try:
+            results = yield futures 
+            res = results.find("success")
+            print("finished ", results)
+            verifyfut = self.verify()
+            valid = yield verifyfut
+            print("validator results:  ", valid)
+        except subprocess.CalledProcessError as e:
+            logging.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
     @tornado.gen.coroutine
     def prove(self):
+        bstring = subprocess.check_output(
+        "whoami; exit 0",
+        stderr=subprocess.STDOUT,
+        shell=True)
+        username=str(bstring,  encoding='utf-8').strip()
+        workdir = '/home/' + username + '/zkP2M-tlsn'
         bashCommand = ['cargo','run','--release','--example','razorpay_payment_prover']
-        proc = tornado.process.Subprocess(bashCommand, stdout=tornado.process.subprocess.PIPE, stderr=tornado.process.subprocess.STDOUT, universal_newlines=True, cwd='/home/ubuntu/zkp2m-tlsn')
+        logging.info("creating for: %s", workdir)
+        proc = tornado.process.Subprocess(bashCommand, stdout=tornado.process.subprocess.PIPE, stderr=tornado.process.subprocess.STDOUT, universal_newlines=True, cwd=workdir)
 
         yield proc.wait_for_exit() # `wait_for_exit` returns a future 
                                # which you can yield. Basically, it means
@@ -57,8 +68,14 @@ class MainHandler(tornado.web.RequestHandler):
 
     @tornado.gen.coroutine
     def verify(self):
+        bstring = subprocess.check_output(
+        "whoami; exit 0",
+        stderr=subprocess.STDOUT,
+        shell=True)
+        username=str(bstring,  encoding='utf-8').strip()
+        workdir = '/home/' + username + '/zkP2M-tlsn'
         bashCommand = ['cargo','run','--release','--example','razorpay_payment_verifier']
-        proc = tornado.process.Subprocess(bashCommand, stdout=tornado.process.subprocess.PIPE, stderr=tornado.process.subprocess.STDOUT, universal_newlines=True, cwd='/home/ubuntu/zkp2m-tlsn')
+        proc = tornado.process.Subprocess(bashCommand, stdout=tornado.process.subprocess.PIPE, stderr=tornado.process.subprocess.STDOUT, universal_newlines=True, cwd=workdir)
 
         yield proc.wait_for_exit() # `wait_for_exit` returns a future
                                # which you can yield. Basically, it means
