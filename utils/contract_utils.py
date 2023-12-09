@@ -1,16 +1,19 @@
 import json
 from brownie import Contract, accounts, network
 import os
-
+from dotenv import load_dotenv
+load_dotenv()
 CONTRACT_ADDRESS = os.environ.get('CONTRACT_ADDRESS')
 VERIFIER_PRIVATE_KEY = os.environ.get('VERIFIER_PRIVATE_KEY')
-NETWORK = os.env('NETWORK')
+NETWORK = os.environ.get('NETWORK')
+
+print(CONTRACT_ADDRESS, VERIFIER_PRIVATE_KEY, NETWORK)
 
 def call_onramp(intentHash, blockTimestamp, amount, receiver):
 
     network.connect(NETWORK)
 
-    with open('contract_abi.json', 'r') as abi_file:
+    with open('/home/ubuntu/zkP2M-tlsn/utils/contract_abi.json', 'r') as abi_file:
         abi = json.load(abi_file)
 
     verifier_eoa = accounts.add(VERIFIER_PRIVATE_KEY)
@@ -31,3 +34,8 @@ def call_onramp(intentHash, blockTimestamp, amount, receiver):
     network.disconnect()
 
     print(f"Completed onramp")
+
+
+
+#if __name__ == "__main__":
+#    call_onramp("0x", 1, 2, "0x")

@@ -1,23 +1,25 @@
 import logging
 import json
+import os
 import os.path
 import subprocess
 import tornado.escape
 import tornado.ioloop
 import tornado.process
 import tornado.options
-import tornado.web
 import tornado.websocket
 import tornado.concurrent
 import tornado.process
 import tornado.gen
 from tornado.queues import Queue
 from tornado.options import define, options
+from dotenv import load_dotenv
+import utils.contract_utils
 
 define("port", default=3030, help="run on the given port", type=int)
 q = Queue()
 
-
+load_dotenv()
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
@@ -35,6 +37,8 @@ class MainHandler(tornado.web.RequestHandler):
     @tornado.gen.coroutine
     def post(self):
         logging.info(json.loads(self.request.body))
+        user_data = json.loads(self.request.body)
+        os.environ["PAYMENT_ID"] = user_data["razorpay_payment_id"]
         self.set_status(200)
         self.finish()
         futures = self.prove()
@@ -45,6 +49,11 @@ class MainHandler(tornado.web.RequestHandler):
             verifyfut = self.verify()
             valid = yield verifyfut
             print("validator results:  ", valid)
+            print("approving usdc withdrawal")
+            #tmp values until sourabh and sachin get in gear
+            user_data = {'intent_hash': 'intentHash'}
+            api_data =  {'amount': 100,  'created_at': 1702052754, 'email': 'success@razorpay'}
+            utils.contract_utils.call_onramp(user_data["intent_hash"], api_data["created_at"], api_data["amount"], api_data["email"])
         except subprocess.CalledProcessError as e:
             logging.info("command '{}' return with error (code {}): {}".format(e.cmd, e.returncode, e.output))
     @tornado.gen.coroutine
@@ -139,3 +148,4 @@ def relay():
 if __name__ == "__main__":
 
     relay()
+
