@@ -6,7 +6,7 @@
 RUST_LOG=debug,yamux=info cargo run --release --example razorpay_payment_proover
 ```
 
-# Verifier
+## Verify the Proof
 
 
 ```
